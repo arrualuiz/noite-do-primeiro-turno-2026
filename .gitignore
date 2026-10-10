@@ -22,8 +22,9 @@ R/*.png
 # prints que tirei dos sites (telas de terceiros; só local)
 prints/*.png
 
-# cache dos dados abertos do TSE (zips baixados por analise/historico_tse.py)
+# cache dos dados abertos do TSE e do IBGE (baixados por analise/historico_tse.py e analise/municipios.py)
 dados/historico/tse/
+dados/historico/ibge/
 
 # arquivos pessoais (só locais)
 privado/
