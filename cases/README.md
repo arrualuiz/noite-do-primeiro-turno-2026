@@ -2,6 +2,7 @@
 
 Cada arquivo é uma pequena análise feita durante a noite de 04/10/2026, a partir de uma dúvida real durante a apuração.
 Os números são os do momento da análise. O campo **Desfecho** é preenchido depois, com o resultado final.
+A partir do 21, os cases foram feitos depois da noite, com o resultado final; o campo `hora` traz a data.
 
 Estrutura de cada case (para o HTML final):
 
@@ -43,3 +44,4 @@ status: aberto | fechado
 | 18 | [Quem ganha em Minas ganha o Brasil?](18-quem-ganha-minas.md) | 20:54 | análise |
 | 19 | [20h57: o TSE confirma o 2º turno](19-segundo-turno-confirmado.md) | 20:57 | bastidor |
 | 20 | [Reta final: ainda dá para chegar a 46 x 45?](20-reta-final.md) | 21:32 | análise |
+| 21 | [O mapa do voto é o mapa da soja?](21-mapa-do-voto-e-da-soja.md) | 10/10 | análise |

@@ -56,8 +56,9 @@ class SVG:
         self.p.append(f'<polyline points="{pp}" fill="none" stroke="{cor}" stroke-width="{w}" '
                       f'stroke-linejoin="round" stroke-linecap="round"{d}/>')
 
-    def c(self, x, y, cor, r=4):
-        self.p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r}" fill="{cor}"/>')
+    def c(self, x, y, cor, r=4, op=1):
+        o = f' fill-opacity="{op}"' if op != 1 else ""
+        self.p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{round(r, 1):g}" fill="{cor}"{o}/>')
 
     def salvar(self, nome):
         self.p.append("</svg>")
@@ -166,6 +167,34 @@ def barras_agrupadas(nome, titulo, categorias, series, fmt=lambda v: br(v), w=72
     if ref is not None:
         s.l(m["l"], Y(ref), w - m["r"], Y(ref), LARANJA, 1.5, "5 4")
         s.t(w - m["r"], Y(ref) - 6, ref_rot, 11, LARANJA, "end", 700)
+    return s.salvar(nome)
+
+
+def dispersao(nome, titulo, pontos, xlab, ylab, xdom, ydom, ticks_x, ticks_y, fmt_x=lambda v: f"{v:g}",
+              fmt_y=lambda v: f"{v:g}", refs=(), rotulos=(), notas=None, w=720, h=420):
+    """pontos: [(x, y, raio, cor)]; refs: [(y, rótulo)] linhas horizontais; rotulos: [(x, y, texto, dx, dy)]."""
+    s = SVG(w, h, titulo)
+    m = dict(t=46 if notas else 24, r=24, b=44, l=52)
+    X = lambda v: m["l"] + (v - xdom[0]) / (xdom[1] - xdom[0]) * (w - m["l"] - m["r"])
+    Y = lambda v: h - m["b"] - (v - ydom[0]) / (ydom[1] - ydom[0]) * (h - m["t"] - m["b"])
+    if notas:
+        x = m["l"]
+        for rot, cor in notas:
+            s.c(x + 5, 14, cor, 5, .7); s.t(x + 15, 18, rot); x += 30 + len(rot) * 6.6
+    for v in ticks_y:
+        s.l(m["l"], Y(v), w - m["r"], Y(v), TEXTO if v == 0 else GRADE, 1, op=.6 if v == 0 else 1)
+        s.t(m["l"] - 8, Y(v) + 4, fmt_y(v), 11, anchor="end")
+    for v in ticks_x:
+        s.t(X(v), h - m["b"] + 18, fmt_x(v), 11, anchor="middle")
+    for y, rot in refs:
+        s.l(m["l"], Y(y), w - m["r"], Y(y), LARANJA, 1.5, "5 4")
+        s.t(w - m["r"], Y(y) - 6, rot, 11, LARANJA, "end", 700)
+    for x, y, r, cor in sorted(pontos, key=lambda p: -p[2]):   # os maiores embaixo
+        s.c(X(x), Y(y), cor, r, .55)
+    for x, y, txt, dx, dy in rotulos:
+        s.t(X(x) + dx, Y(y) + dy, txt, 11, TEXTO, "start" if dx >= 0 else "end", 700)
+    s.t((m["l"] + w - m["r"]) / 2, h - 8, xlab, 11, anchor="middle")
+    s.t(12, m["t"] - 10, ylab, 11)
     return s.salvar(nome)
 
 
@@ -426,10 +455,50 @@ def g20(c):
                     itens, fmt=lambda v: br(v, 0) + " mil", rotulo_x="mil votos válidos ainda não apurados", altura_barra=15)
 
 
+def g21(c):
+    import municipios as mu
+    rows = mu.ler()
+    base = mu.margem([r for r in rows if r["pct_soja_territorio"] == 0])
+    viz = mu.vs_vizinhos(rows)
+    faixas = mu.FAIXAS[1:]
+    pais = [mu.margem([r for r in rows if mu.faixa(r["pct_soja_territorio"]) == f]) - base for f in faixas]
+    return barras_agrupadas("21-soja-pais-x-estado.svg",
+                            "Quanto a margem PL − PT é maior que nos municípios sem soja (p.p.), por faixa de soja no território",
+                            [f"soja\n{f}" for f in faixas],
+                            [("contra os sem soja do país todo", CINZA, pais),
+                             ("contra os sem soja do mesmo estado e porte", LARANJA, [viz[f][0] for f in faixas])],
+                            fmt=lambda v: ("+" if v > 0 else "") + br(v, 1), h=340)
+
+
+def g21b(c):
+    import municipios as mu
+    ne = [r for r in mu.ler() if r["regiao"] == "Nordeste" and r["soja_ha_2025"] > 0]
+    vmax = max(r["validos_2026"] for r in ne)
+    pts = [(min(r["pct_soja_territorio"], 62), r["margem_2026_pp"], 1.6 + 10 * (r["validos_2026"] / vmax) ** .5,
+            AZUL if r["margem_2026_pp"] > 0 else VERMELHO) for r in ne]
+    lugar = {(r["municipio"], r["uf"]): r for r in ne}
+    rot = []
+    for (nm, uf), dx, dy in [(("Luís Eduardo Magalhães", "BA"), -14, 4), (("Balsas", "MA"), 12, 4),
+                             (("São Desidério", "BA"), 12, 4), (("Formosa do Rio Preto", "BA"), -12, -8),
+                             (("Barreiras", "BA"), -14, -10), (("Baixa Grande do Ribeiro", "PI"), 12, -6),
+                             (("Riachão das Neves", "BA"), 10, 4)]:
+        r = lugar[(nm, uf)]
+        rot.append((r["pct_soja_territorio"], r["margem_2026_pp"], f"{nm} ({uf})", dx, dy))
+    ne_todo = mu.margem([r for r in mu.ler() if r["regiao"] == "Nordeste"])
+    ymin = min(-80, min(p[1] for p in pts))
+    return dispersao("21-nordeste-soja.svg",
+                     "Nordeste: municípios que plantam soja, por % do território com soja e margem PL − PT no 1º turno de 2026",
+                     pts, "% do território do município plantado com soja (2025)", "margem PL − PT (p.p.)",
+                     (0, 62), (ymin, 40), range(0, 61, 10), range(-80, 41, 20),
+                     fmt_x=lambda v: f"{v:g}%", fmt_y=lambda v: ("+" if v > 0 else "") + f"{v:g}",
+                     refs=[(ne_todo, f"Nordeste inteiro: {br(ne_todo, 1)}")], rotulos=rot,
+                     notas=[("PL venceu", AZUL), ("PT venceu", VERMELHO), ("tamanho = votos válidos", CINZA)])
+
+
 def main():
     c = con()
     feitos = []
-    for g in (g01, g03, g04, g05, g06, g07, g08, g09, g10, g11, g12, g13, g14, g15, g16, g17, g18, g19, g20):
+    for g in (g01, g03, g04, g05, g06, g07, g08, g09, g10, g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g21b):
         try:
             feitos.append(g(c))
         except Exception as e:
