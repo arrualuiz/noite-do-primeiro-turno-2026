@@ -1,7 +1,7 @@
 # CONTEXTO — Noite do Primeiro Turno 2026
 
 > Documento de passagem: tudo o que alguém (pessoa ou IA) precisa para entender, avaliar e continuar este projeto sem ter acompanhado a noite.
-> Repositório: https://github.com/arrualuiz/noite-do-primeiro-turno-2026 · Atualizado em 05/10/2026, com o resultado final do 1º turno.
+> Repositório: https://github.com/arrualuiz/noite-do-primeiro-turno-2026 · Atualizado em 10/10/2026, com o resultado final do 1º turno e o voto por município (case 21).
 
 ## 1. O que é
 
@@ -49,8 +49,9 @@ Projeto pessoal de jornalismo de dados feito **ao vivo**, durante a apuração d
 6. **O TSE publica os estados antes do nacional:** somar as UFs dá um placar mais atual que o dos sites (g1/UOL mostram o arquivo nacional).
 7. **Estimativa da diferença final** (case 12): entre 1,5 e 3 p.p. a favor do Flávio. **Real: +1,87 p.p.** O método mais preciso foi o mais simples, aplicar a reta final de 2022 (+1,50); as projeções com dados de 2026 erraram todas a favor do Flávio.
 8. **Resultado final do 1º turno** (100% das seções, 05/10 02:59): **Flávio Bolsonaro 47,03%** (56.104.503) x **Lula 45,16%** (53.879.538); Cury 2,89%, Renan Santos 2,24%, Caiado 2,18%, Zema 0,27%. Abstenção de **21,08%**, a maior de um 1º turno desde 2002. Da coleta das 19:14 até o fim, o saldo real do Lula foi de 3,26 mi, contra 1,41 mi esperados pela projeção por estado.
+9. **O mapa do voto e o mapa da soja** (case 21, com o resultado por município): no país, onde a soja ocupa mais de 15% do território, o Flávio abriu +3,41 mi. Mas, comparados aos municípios sem soja do mesmo estado e porte, os de mais soja votaram só +1,7 a +2,9 p.p. mais no PL (no Sul, menos). No oeste baiano, só Luís Eduardo Magalhães deu vitória ao Flávio; São Desidério e Formosa do Rio Preto, as maiores áreas de soja do Nordeste, deram ~60% ao Lula. No Norte, a parcela de moradores nascidos no Sul (Rondônia) separa o voto mais que a soja. De 2022 para 2026, os municípios com soja se moveram mais para o PL que os outros.
 
-Detalhes, números e método de cada um em `cases/` (20 cases).
+Detalhes, números e método de cada um em `cases/` (21 cases).
 
 ## 4. Arquitetura
 
@@ -67,6 +68,7 @@ Visões (leem os dados e comparam):
   analise/analisar.py   tendência e projeção no terminal
   analise/variacao.py   estado a estado entre duas leituras; saldo esperado do que falta
   analise/revisao.py    confere as ideias (cases) contra a última coleta
+  analise/municipios.py voto por município (TSE, dados abertos) x soja, área e origem dos moradores (IBGE)
   coleta/status.py      saúde da coleta
   R/01-explorar-apuracao.R   exemplo em R (dplyr + ggplot2)
 ```
@@ -111,6 +113,7 @@ Python usa só a biblioteca padrão. Node + Puppeteer + Chrome só para os print
 | `apuracao.csv` | coleta × abrangência | `secoes_total/apuradas/pct`, `eleitorado`, `eleitorado_apurado`, `comparecimento`, `abstencao`, `votos_total`, `validos`, `brancos`, `nulos` (inclui `BR` = arquivo nacional oficial) |
 | `votos.csv` | coleta × UF × candidato | `horario`, `uf`, `nome_uf`, `regiao`, `numero`, `candidato`, `partido`, `votos`, `pct_validos` |
 | `nacional.csv` | coleta | `secoes_pct`, `validos`, `votos_flavio/lula`, `pct_flavio/lula`, `dif_votos`, `dif_pp`, `proj_flavio/lula` |
+| `municipios.csv` | município (5.571, sem o exterior) | `ibge`, `tse` (códigos), `uf`, `regiao`, `municipio`, `validos/flavio/lula_2026`, `margem_2026_pp` (PL − PT), `validos/bolsonaro/lula_2022`, `margem_2022_pp`, `area_km2`, `soja_ha_2025`, `pct_soja_territorio`, `populacao_2022`, `nascidos_sul_2022`, `pct_nascidos_sul` (gerado por `analise/municipios.py`, 1º turno) |
 | `lotes.csv` | par de coletas × abrangência | `de`, `ate`, `abrangencia` (`BR` = soma), `validos_novos`, `novos_flavio/lula/outros`, `saldo_flavio_menos_lula`, `pct_lote_flavio/lula`, `margem_acumulada_antes_pp` |
 
 Histórico oficial 2002–2022 (TSE, dados abertos): `dados/historico/presidente_turnos.csv` (ano × turno: aptos, comparecimento, abstenção, brancos, nulos, válidos) `presidente_votos.csv` (ano × turno × partido: votos, %) e `presidente_votos_uf.csv` (ano × turno × UF × partido: votos), gerados por `analise/historico_tse.py`; `dados/historico/2018-t2-g1-minuto.csv` (evolução minuto a minuto do 2º turno de 2018).
@@ -168,3 +171,4 @@ python3 coleta/status.py · python3 analise/revisao.py · xdg-open painel/painel
 - O viés "voto tardio mais favorável ao Lula dentro do estado" aparece também por município? (dados por município estão nos arquivos `-v.json`/zona do TSE, não coletados aqui)
 - Uma projeção que use a tendência dos lotes, e não o acumulado, teria acertado antes?
 - Como a reta final de 2026 se compara à de 2022, ponto a ponto?
+- No voto por município, a origem dos moradores (migração do Sul) separa o voto da fronteira agrícola melhor que a soja (case 21)? O Censo só conta quem nasceu no Sul, não os filhos de migrantes.

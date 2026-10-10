@@ -8,7 +8,7 @@ O desenrolar da noite do primeiro turno da eleição para Presidente (04/10/2026
 
 O projeto foi feito **durante a noite da apuração**. Os CSVs em `dados/` são o registro real do que foi coletado, e o `notas.md` é o diário das observações feitas no caminho.
 
-**Comece por aqui:** [`RETOMAR.md`](RETOMAR.md) diz onde paramos e o que falta; [`CONTEXTO.md`](CONTEXTO.md) tem o projeto inteiro (linha do tempo, achados, métodos, dicionário de dados e como conectar em R, Python, Power BI, Power Automate e Sheets). As 20 análises estão em [`cases/`](cases/) e o site de rolagem em [`site/index.html`](site/index.html).
+**Comece por aqui:** [`RETOMAR.md`](RETOMAR.md) diz onde paramos e o que falta; [`CONTEXTO.md`](CONTEXTO.md) tem o projeto inteiro (linha do tempo, achados, métodos, dicionário de dados e como conectar em R, Python, Power BI, Power Automate e Sheets). As 21 análises estão em [`cases/`](cases/) e o site de rolagem em [`site/index.html`](site/index.html).
 
 ![Painel da apuração com o resultado final](docs/painel.png)
 
@@ -19,8 +19,8 @@ O projeto foi feito **durante a noite da apuração**. Os CSVs em `dados/` são 
 - **Projeção por estado**: supõe que o que falta de cada estado vota igual ao que já foi apurado nele. Isso corrige o viés da ordem de chegada das urnas: o Sul é apurado antes do Nordeste, o que infla o placar parcial de um lado.
 - **"Quanto precisa"**: calcula o % dos válidos restantes que o líder precisa para fechar acima de 50% e vencer no 1º turno.
 - **Painel** (`painel/painel.html`): placar, evolução 2026 x 2022, curva da diferença, projeção x placar, saldo de cada atualização (geral e por estado), mapa, andamento por estado e região, e tabela. Funciona no modo claro, no escuro e no celular.
-- **Análises** (`cases/`): 20 análises feitas a partir de dúvidas reais durante a noite, cada uma com pergunta, dados completos, gráfico, método, conclusão e o desfecho comparado ao resultado final.
-- **Site** (`site/index.html`): a noite contada em rolagem, com o gráfico avançando a cada marco, os prints do momento e as 20 análises.
+- **Análises** (`cases/`): 20 análises feitas a partir de dúvidas reais durante a noite, cada uma com pergunta, dados completos, gráfico, método, conclusão e o desfecho comparado ao resultado final. A 21ª veio depois, com o resultado por município: o mapa do voto x o mapa da soja.
+- **Site** (`site/index.html`): a noite contada em rolagem, com o gráfico avançando a cada marco, os prints do momento e as análises.
 - **Histórico**: resultados oficiais de 2002 a 2022 (abstenção e votos por turno e por estado) dos dados abertos do TSE, e a evolução minuto a minuto do 2º turno de 2018.
 - **Prints**: a cada coleta, salva prints do placar e do mapa do g1 como evidência visual.
 
@@ -49,6 +49,7 @@ notas.md   diário da apuração
 | `analise/graficos.py` | Gera os gráficos SVG dos cases em `cases/graficos/` a partir do banco |
 | `analise/exportar.py` | Exporta o banco para `dados/export/*.csv` (R, Python, Power BI…) e `site/dados.js` |
 | `analise/historico_tse.py` | Histórico oficial 2002–2022 (abstenção, votos por turno) a partir dos dados abertos do TSE |
+| `analise/municipios.py` | Voto por município (2022 e 2026) cruzado com soja, área e origem dos moradores (IBGE) → `dados/export/municipios.csv` (case 21) |
 | `analise/banco.py` | Monta o banco SQLite `dados/apuracao.sqlite` a partir dos JSON brutos (incremental) |
 | `painel/painel.py` + `painel/template.html` | Gera o `painel/painel.html` a partir dos dados |
 | `R/01-explorar-apuracao.R` | Exemplo em R: placar, saldo por lote, por estado e por região |
@@ -81,6 +82,7 @@ python3 analise/analisar.py                  # análise no terminal
 python3 analise/variacao.py                  # o que mudou por estado entre as 2 últimas coletas
 python3 analise/revisao.py                   # as ideias da noite ainda se confirmam?
 python3 analise/variacao.py --todas SP       # evolução de um estado em todas as coletas
+python3 analise/municipios.py                # voto por município x soja (case 21)
 python3 site/publicar.py                     # monta a versão pública em docs/ (GitHub Pages)
 xdg-open painel/painel.html                  # painel (recarrega a cada minuto)
 ```
@@ -119,7 +121,8 @@ Instalar R no Ubuntu: `sudo apt install r-base r-cran-tidyverse r-cran-rsqlite r
 ## Fontes
 
 - **TSE**: `resultados.tse.jus.br/oficial/ele2026/6257/dados/<uf>/<uf>-c0001-e006257-u.json`, com votos por candidato, seções apuradas, eleitorado, brancos, nulos e abstenção. Eleição 6257 = Presidente, 1º turno.
-- **TSE, dados abertos** (`cdn.tse.jus.br/estatistica/sead/odsele`): resultados oficiais de 2002 a 2022.
+- **TSE, dados abertos** (`cdn.tse.jus.br/estatistica/sead/odsele`): resultados oficiais de 2002 a 2026, por município em 2022 e 2026.
+- **IBGE** (SIDRA e API de malhas): área plantada de soja por município (PAM 2025), área territorial e lugar de nascimento dos moradores (Censo 2022).
 - **UOL**: curva de evolução da apuração de 2026 e de 2022, usada só nos gráficos comparativos.
 - **g1**: prints do placar e do mapa, e o infográfico com a evolução minuto a minuto do 2º turno de 2018.
 
