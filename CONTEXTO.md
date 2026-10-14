@@ -1,6 +1,6 @@
 # CONTEXTO — Noite do Primeiro Turno 2026
 
-> Documento de passagem: tudo o que alguém (pessoa ou IA) precisa para entender, avaliar e continuar este projeto sem ter acompanhado a noite.
+> Documento de passagem: tudo o que alguém (inclusive eu no futuro) precisa para entender, avaliar e continuar este projeto sem ter acompanhado a noite.
 > Repositório: https://github.com/arrualuiz/noite-do-primeiro-turno-2026 · Atualizado em 10/10/2026, com o resultado final do 1º turno e o voto por município (case 21).
 
 ## 1. O que é
@@ -150,7 +150,7 @@ lotes = pd.read_csv(base + "lotes.csv")
 
 **Google Sheets**: `=IMPORTDATA("https://raw.githubusercontent.com/arrualuiz/noite-do-primeiro-turno-2026/main/dados/export/nacional.csv")`. Para automatizar, use Apps Script com `UrlFetchApp.fetch(url)` + `Utilities.parseCsv`.
 
-**Outra IA**: entregue este arquivo + `cases/` + os CSVs de `dados/export/` (ou o link do repositório).
+**Outra pessoa**: entregue este arquivo + `cases/` + os CSVs de `dados/export/` (ou o link do repositório).
 
 ## 9. Como retomar
 

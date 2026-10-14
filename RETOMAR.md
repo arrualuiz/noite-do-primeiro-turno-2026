@@ -49,8 +49,10 @@ python3 -u coleta/coletar.py --a-cada 180 --print --git --parar-no-fim   # PID e
 - **Painel:** `painel/painel.html`, com todos os gráficos da noite.
 - **GitHub:** https://github.com/arrualuiz/noite-do-primeiro-turno-2026. O histórico de commits mostra a construção passo a passo. Os prints não estão lá (são telas de terceiros); o site no GitHub abre sem eles.
 
-## Para retomar com uma IA
+## Para retomar
 
-Abra o assistente de código nesta pasta e cole:
+1. Ler este arquivo e o `CONTEXTO.md`.
+2. Rodar `python3 coleta/status.py` para ver em que pé está.
+3. Fechar os desfechos dos cases com o resultado final.
 
-> Estou retomando o projeto Noite do Primeiro Turno 2026. Leia `RETOMAR.md` e `CONTEXTO.md`, rode `python3 coleta/status.py` e me diga em que pé está. Depois vamos fechar os desfechos dos cases com o resultado final. Mantenha o padrão: cada análise vira um case em `cases/`, e cada etapa um commit com push.
+O padrão continua o mesmo: cada análise vira um case em `cases/`, e cada etapa um commit com push.
